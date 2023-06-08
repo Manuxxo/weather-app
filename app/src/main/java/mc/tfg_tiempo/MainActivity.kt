@@ -1,62 +1,47 @@
 package mc.tfg_tiempo
 
-import android.annotation.SuppressLint
+import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
-import mc.tfg_tiempo.R
-import okhttp3.Response
+import android.view.Menu
+import android.view.MenuItem
 
-import android.widget.Button
-import mc.tfg_tiempo.WeatherApiClient
-import mc.tfg_tiempo.WeatherCallback
+import mc.tfg_tiempo.databinding.ActivityMainBinding
+import kotlin.system.exitProcess
 
 
 class MainActivity : AppCompatActivity() {
+    val enlace: ActivityMainBinding by lazy{
+        ActivityMainBinding.inflate(layoutInflater)
+    }
 
-    private lateinit var weatherApiClient: WeatherApiClient
-    private lateinit var textViewTemperature: TextView
-    private lateinit var textViewHumidity: TextView
-
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(enlace.root)
+    }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu,menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+    /////////////////////////////////////////////////////////////////////////////////
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        weatherApiClient = WeatherApiClient("95b1f5bbf3915b3c1c96eaf1e6c348e3")
-
-        textViewTemperature = findViewById(R.id.textViewTemperature)
-        textViewHumidity = findViewById(R.id.textViewHumidity)
-
-        val buttonGetWeather = findViewById<Button>(R.id.buttonGetWeather)
-        buttonGetWeather.setOnClickListener {
-            val city = "Sevilla"
-            weatherApiClient.getCurrentWeather(city, object : WeatherCallback {
-                override fun onResponse(response: Response) {
-
-                    val body = response.body?.string()
-                    if (response.isSuccessful && !body.isNullOrEmpty()) {
-                        val weatherData = WeatherApiClient.parseWeatherData(body)
-                        val temperature = weatherData.temperature.toInt()
-                        val humidity = weatherData.humidity
-
-                        runOnUiThread {
-                            textViewTemperature.text = "Temperatura: $temperature °C"
-                            textViewHumidity.text = "Humedad: $humidity %"
-                        }
-                    } else {
-                        onError()
+       when(item.itemId){
+            R.id.salir ->{
+                val builder = AlertDialog.Builder(this)
+                builder.setMessage("¿Seguro que quiere salir?")
+                    .setTitle("Confirmación")
+                    .setPositiveButton(android.R.string.ok){ _, _ ->
+                        exitProcess(0)
                     }
-                }
-
-                override fun onError() {
-                    runOnUiThread {
-                        textViewTemperature.text = "Error al obtener el clima"
-                        textViewHumidity.text = ""
-                        println("aaaaaaaaaaaaa")
-                    }
-                }
-            })
+                    .setNegativeButton(android.R.string.cancel){ _, _ -> }
+                builder.show()
+            }
+          /*  R.id.informacion ->{
+                findNavController(enlace.contenedorArriba.id).navigate(R.id.action_inicioFragment_to_infoFragment)
+                desactivar()
+            }*/
         }
+        return super.onOptionsItemSelected(item)
     }
 }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="google_api_key" templateMergeStrategy="preserve" translatable="false">AIzaSyDb_3Wqes-OOfyLRIpZeiZ303qOt_UxrV4</string>
+    <string name="openwheater_api_key" templateMergeStrategy="preserve" translatable="false">95b1f5bbf3915b3c1c96eaf1e6c348e3</string>
+</resources>

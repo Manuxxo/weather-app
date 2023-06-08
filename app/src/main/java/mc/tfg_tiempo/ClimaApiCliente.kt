@@ -4,18 +4,18 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 
-class WeatherApiClient(private val apiKey: String) {
+class ClimaApiCliente() {
 
-    private val client = OkHttpClient()
-
-    fun getCurrentWeather(city: String, callback: WeatherCallback) {
+    private val cliente = OkHttpClient()
+    private val apiKey = "95b1f5bbf3915b3c1c96eaf1e6c348e3"
+    fun getClimaActual(city: String, callback: respuestaWeather) {
         val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&units=metric&appid=$apiKey"
 
         val request = Request.Builder()
             .url(url)
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
+        cliente.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 callback.onResponse(response)
             }
@@ -25,24 +25,23 @@ class WeatherApiClient(private val apiKey: String) {
             }
         })
     }
-
-
-
     companion object {
-        fun parseWeatherData(json: String): WeatherData {
+        fun parseWeatherData(json: String): DatosWeather {
             val jsonObject = JSONObject(json)
             val mainObject = jsonObject.getJSONObject("main")
-            val temperature = mainObject.getDouble("temp")
-            val humidity = mainObject.getInt("humidity")
+            val temperatura = mainObject.getDouble("temp")
+            val humedad = mainObject.getInt("humidity")
+            val iconObject = jsonObject.getJSONObject("weather")
+            val icon = iconObject.getString("icon")
 
-            return WeatherData(temperature, humidity)
+            return DatosWeather(temperatura, humedad, icon)
         }
     }
 }
 
-interface WeatherCallback {
+interface respuestaWeather {
     fun onResponse(response: Response)
     fun onError()
 }
 
-data class WeatherData(val temperature: Double, val humidity: Int)
+data class DatosWeather(val temperatura: Double, val humedad: Int, val icon:String)
