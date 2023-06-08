@@ -46,7 +46,7 @@ class InformacionClimaFragment : Fragment() {
                 }
 
                 override fun onError() {
-                    view?.post {
+                    view.post {
                         enlace.textViewTemperature.text = "Error al obtener el clima"
                         enlace.textViewHumidity.text = "Error al obtener los datos"
                     }
