@@ -7,7 +7,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container_navegacion"
-        android:name="mc.tfg_tiempo.InformacionClimaFragment"
+        android:name="mc.tfg_tiempo.api_clima.InformacionClimaFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(enlace.root)
     }
+    /*
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu,menu)
         return super.onCreateOptionsMenu(menu)
@@ -43,5 +44,5 @@ class MainActivity : AppCompatActivity() {
             }*/
         }
         return super.onOptionsItemSelected(item)
-    }
+    }*/
 }

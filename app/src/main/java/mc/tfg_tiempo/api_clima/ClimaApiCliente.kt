@@ -1,15 +1,16 @@
-package mc.tfg_tiempo
+package mc.tfg_tiempo.api_clima
 
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 
-class ClimaApiCliente(private val apiKey: String) {
+class ClimaApiCliente {
 
+    private val apiKey: String = "95b1f5bbf3915b3c1c96eaf1e6c348e3"
     private val cliente = OkHttpClient()
 
     fun getClimaActual(city: String, callback: respuestaWeather) {
-        val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&units=metric&appid=$apiKey"
+        val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&units=metric&appid=$apiKey&lang=es"
 
         val request = Request.Builder()
             .url(url)
@@ -29,15 +30,23 @@ class ClimaApiCliente(private val apiKey: String) {
 
 
     companion object {
-        fun parseWeatherData(json: String): DatosWeather {
+        fun climaParser(json: String): DataWeather {
             val jsonObject = JSONObject(json)
+
             val mainObject = jsonObject.getJSONObject("main")
             val temperatura = mainObject.getDouble("temp")
+            val sensacionTerminca = mainObject.getInt("feels_like")
+            val tempMaxima = mainObject.getInt("temp_max")
+            val tempMinima = mainObject.getInt("temp_min")
+            val presion = mainObject.getInt("pressure")
             val humedad = mainObject.getInt("humidity")
 
-            val icon = "04d"
+            val jsonArray = jsonObject.getJSONArray("weather")
+            val arrayDescription = jsonArray.getJSONObject(0)
+            val icon = arrayDescription.getString("icon")
+            val estado = arrayDescription.getString("description")
 
-            return DatosWeather(temperatura, humedad, icon)
+            return DataWeather(temperatura, humedad, icon, sensacionTerminca, tempMaxima, tempMinima, presion, estado)
         }
     }
 }
@@ -46,5 +55,3 @@ interface respuestaWeather {
     fun onResponse(response: Response)
     fun onError()
 }
-
-data class DatosWeather(val temperatura: Double, val humedad: Int, val icon:String)
