@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
+import mc.tfg_tiempo.R
 import mc.tfg_tiempo.card.AdaptadorCard
 import mc.tfg_tiempo.card.ClimaPorHora
 import mc.tfg_tiempo.card.DataCard
@@ -37,7 +38,7 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
         climaPorHora.getPronosticoPorHoras("Sevilla",this)
 
         enlace.btnGetData.setOnClickListener {
-            val city = "Sevilla"
+            val city = "New York"
             climaApiCliente.getClimaActual(city, object : respuestaWeather {
                 override fun onResponse(response: Response) {
 
@@ -48,6 +49,7 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                         val humedad = weatherData.sensacionTermica
                         val icon = weatherData.icon
                         val estado = weatherData.estado
+                        println(icon)
 
                         val iconUrl = "http://openweathermap.org/img/w/$icon.png"
 
@@ -58,10 +60,12 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                             enlace.txtCiudad.text = "Humedad: $humedad %"
                             enlace.txtEstado.text = estado
 
+                            enlace.imageViewIcon.setImageResource(R.drawable.ic_sunny)
+/*
                             //Picasso agarra un resource desde una web y lo pone en un elemento
                             Picasso.get()
                                 .load(iconUrl)
-                                .into(enlace.imageViewIcon)
+                                .into(enlace.imageViewIcon)*/
                         }
                     } else {
                         onError()
@@ -97,8 +101,6 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
             var adapter = AdaptadorCard(weatherList)
             enlace.recViewCard.setHasFixedSize(true)
             enlace.recViewCard.adapter = adapter
-            println("Adapter" + adapter)
-            println("WeatherList" + weatherList)
 
         }
     }

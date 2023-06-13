@@ -8,7 +8,7 @@ import java.util.Calendar
 
 class ClimaPorHora {
 
-    private val apiKey: String = "95b1f5bbf3915b3c1c96eaf1e6c348e3" // Reemplaza con tu API key de OpenWeatherMap
+    private val apiKey: String = "95b1f5bbf3915b3c1c96eaf1e6c348e3"
     private val cliente = OkHttpClient()
 
     fun getPronosticoPorHoras(city: String, callback: respuestaWeather) {
@@ -48,7 +48,7 @@ class ClimaPorHora {
 
                 val hour = getHoras(timestamp)
 
-                val weatherItem = DataCard(hour, icon, temperatura.toString())
+                val weatherItem = DataCard(hour, icon, temperatura)
                 weatherList.add(weatherItem)
             }
 
@@ -56,12 +56,12 @@ class ClimaPorHora {
         }
 
         private fun getHoras(timestamp: Long): String {
-            val time = timestamp * 1000
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = time
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
-            return String.format("%02d:%02d", hour, minute)
+            val tiempo = timestamp * 1000
+            val calendario = Calendar.getInstance()
+            calendario.timeInMillis = tiempo
+            val hora = calendario.get(Calendar.HOUR_OF_DAY)
+            val minuto = calendario.get(Calendar.MINUTE)
+            return String.format("%02d:%02d", hora, minuto)
         }
     }
 }
