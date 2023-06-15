@@ -6,6 +6,6 @@ data class DataWeather(val temperatura: Double,
                        val sensacionTermica: Int,
                        val tempMaxima: Int,
                        val tempMinima: Int,
-                       val presion: Int,
+                       val viento: Double,
                        val estado: String)
 

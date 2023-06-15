@@ -14,9 +14,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import android.Manifest
+import android.content.Context
+import android.text.SpannableStringBuilder
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import mc.tfg_tiempo.R
 import mc.tfg_tiempo.card.AdaptadorCard
 import mc.tfg_tiempo.card.ClimaPorHora
 import mc.tfg_tiempo.card.DataCard
@@ -26,12 +29,6 @@ import java.io.IOException
 import java.util.Locale
 
 
-/*
-startActivity(
-                Intent(
-                        Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK))
- */
 class InformacionClimaFragment : Fragment(), respuestaWeather {
 
     private val PERMISSION_REQUEST_CODE = 1001
@@ -39,26 +36,41 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
     private lateinit var enlace: FragmentInformacionClimaBinding
     private lateinit var climaApiCliente: ClimaApiCliente
     private lateinit var climaPorHora: ClimaPorHora
-
-
     private lateinit var localizacion: FusedLocationProviderClient
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         enlace= FragmentInformacionClimaBinding.inflate(inflater, container, false)
         localizacion = LocationServices.getFusedLocationProviderClient(requireContext())
-        val blurredBackground = ContextCompat.getDrawable(requireContext(), R.drawable.fondo_difuminado)
-        requireActivity().window.decorView.background = blurredBackground
-
         return enlace.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         this.getLocaclizacionActual()
 
+        enlace.swipeRefreshLayout.setOnRefreshListener {
+            poneDatos(enlace.txtCiudad.text.toString())
+            enlace.swipeRefreshLayout.isRefreshing = false
+        }
+
+        enlace.imgCambiaCiudad.setOnClickListener{
+            enlace.txtCiudad.isEnabled = true
+            enlace.txtCiudad.requestFocus() // Obtener el foco en el EditText
+            val imm = requireContext(). getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(enlace.txtCiudad, InputMethodManager.SHOW_IMPLICIT)
+        }
+        enlace.txtCiudad.setOnEditorActionListener { _, actionId, event ->
+            if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
+                // Evita el salto de línea al presionar "Enter"
+                poneDatos(enlace.txtCiudad.text.toString())
+                true // Indica que el evento ha sido manejado
+            } else {
+                false // Indica que el evento no ha sido manejado
+            }
+        }
     }
 
     override fun onResponse(response: Response) {
@@ -103,8 +115,8 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
             .addOnSuccessListener { location ->
                 // Se obtuvo la ubicación
                 if (location != null) {
-                    poneDatos(getNombreCiudadPorCoordenada(location.latitude, location.longitude)
-                    )
+                    poneDatos(getNombreCiudadPorCoordenada(location.latitude,location.longitude))
+
                 }
             }
             .addOnFailureListener { exception ->
@@ -140,15 +152,21 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                 if (response.isSuccessful && !body.isNullOrEmpty()) {
                     val weatherData = ClimaApiCliente.climaParser(body)
                     val temperatura = weatherData.temperatura.toInt()
-                    val humedad = weatherData.sensacionTermica
+                    val min = weatherData.tempMinima
+                    val max = weatherData.tempMaxima
+                    val viento = weatherData.viento * 3.6
                     val estado = weatherData.estado
+                    val humedad = weatherData.humedad
 
                     //esto es para que trabaje en el mismo hilo y sea más seguro que no crashee
 
                     view!!.post {
                         enlace.txtTemperatura.text = "$temperatura °"
-                        enlace.txtCiudad.text = "$ciudad"
+                        enlace.txtCiudad.text = SpannableStringBuilder.valueOf(ciudad)
                         enlace.txtEstado.text = estado
+                        enlace.txtViento.text = " ${viento.toInt()} Km/h"
+                        enlace.txtMaxMin.text = "$min º/$max º"
+                        enlace.txtHumedad.text = "$humedad%"
                         AdaptadorCard.seleccionImagen(enlace.imageViewIcon, weatherData.icon)
 
                         enlace.progressBar.visibility = View.GONE // Ocultar el progressbar
@@ -159,6 +177,12 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                         enlace.txtEstado.visibility = View.VISIBLE
                         enlace.imageViewIcon.visibility = View.VISIBLE
                         enlace.recViewCard.visibility = View.VISIBLE
+                        enlace.imageView.visibility = View.VISIBLE
+                        enlace.imageView2.visibility = View.VISIBLE
+                        enlace.imgCambiaCiudad.visibility = View.VISIBLE
+                        enlace.txtHumedad.visibility = View.VISIBLE
+                        enlace.txtViento.visibility = View.VISIBLE
+                        enlace.txtMaxMin.visibility = View.VISIBLE
                     }
                 } else {
                     onError()
@@ -167,7 +191,9 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
             }
 
             override fun onError() {
-                Toast.makeText(requireContext(),"No se pudo obtener los datos del clima", Toast.LENGTH_LONG).show()
+                view!!.post {
+                    Toast.makeText(requireContext(),"No se encuentra la ciudad", Toast.LENGTH_LONG).show()
+                }
             }
         })
     }

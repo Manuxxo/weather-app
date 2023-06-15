@@ -38,15 +38,16 @@ class ClimaApiCliente {
             val sensacionTerminca = mainObject.getInt("feels_like")
             val tempMaxima = mainObject.getInt("temp_max")
             val tempMinima = mainObject.getInt("temp_min")
-            val presion = mainObject.getInt("pressure")
             val humedad = mainObject.getInt("humidity")
 
             val jsonArray = jsonObject.getJSONArray("weather")
             val arrayDescription = jsonArray.getJSONObject(0)
             val icon = arrayDescription.getString("icon")
             val estado = arrayDescription.getString("description")
+            val vientoArray = jsonObject.getJSONObject("wind")
+            val viento = vientoArray.getDouble("speed")
 
-            return DataWeather(temperatura, humedad, icon, sensacionTerminca, tempMaxima, tempMinima, presion, estado.capitalize())
+            return DataWeather(temperatura, humedad, icon, sensacionTerminca, tempMaxima, tempMinima, viento, estado.capitalize())
         }
     }
 }
