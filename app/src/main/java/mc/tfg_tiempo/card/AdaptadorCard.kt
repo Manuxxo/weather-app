@@ -48,27 +48,7 @@ class AdaptadorCard ( private val data: List<DataCard>) : RecyclerView.Adapter<A
 
             itemView.post{
 
-                imagen.setImageResource(when(item.icon){
-                    "01d" -> R.drawable.ic_sunny
-                    "01n" -> R.drawable.moon
-                    "02d" -> R.drawable.ic_cloudy
-                    "02n" -> R.drawable.cloudy_moon
-                    "03d" -> R.drawable.ic_sunnycloudy
-                    "03n" -> R.drawable.ic_very_cloudy
-                    "04d" -> R.drawable.ic_very_cloudy
-                    "04n" -> R.drawable.ic_very_cloudy
-                    "09d" -> R.drawable.ic_rainy
-                    "09n" -> R.drawable.ic_rainy
-                    "10d" -> R.drawable.ic_rainshower
-                    "10n" -> R.drawable.ic_rainshower
-                    "11d" -> R.drawable.ic_rainythunder
-                    "11n" -> R.drawable.ic_rainythunder
-                    "13d" -> R.drawable.ic_snowy
-                    "13n" -> R.drawable.ic_snowy
-                    "50d" -> R.drawable.ic_pressure
-                    "50d" -> R.drawable.ic_pressure
-                    else -> R.drawable.background
-                })
+                seleccionImagen(imagen, item.icon)
 
                /* Picasso.get()
                     .load(iconUrl)
@@ -80,5 +60,33 @@ class AdaptadorCard ( private val data: List<DataCard>) : RecyclerView.Adapter<A
         }
     }
 
+
+
+    companion object {
+        fun seleccionImagen(img: ImageView, icon: String){
+            img.setImageResource(when(icon){
+                "01d" -> R.drawable.ic_sunny
+                "01n" -> R.drawable.moon
+                "02d" -> R.drawable.ic_cloudy
+                "02n" -> R.drawable.cloudy_moon
+                "03d" -> R.drawable.ic_sunnycloudy
+                "03n" -> R.drawable.ic_very_cloudy
+                "04d" -> R.drawable.ic_very_cloudy
+                "04n" -> R.drawable.ic_very_cloudy
+                "09d" -> R.drawable.ic_rainy
+                "09n" -> R.drawable.ic_rainy
+                "10d" -> R.drawable.ic_rainshower
+                "10n" -> R.drawable.ic_rainshower
+                "11d" -> R.drawable.ic_rainythunder
+                "11n" -> R.drawable.ic_rainythunder
+                "13d" -> R.drawable.ic_snowy
+                "13n" -> R.drawable.ic_snowy
+                "50d" -> R.drawable.ic_pressure
+                "50d" -> R.drawable.ic_pressure
+                else -> R.drawable.background
+            })
+        }
+    }
 }
+
 

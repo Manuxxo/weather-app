@@ -5,6 +5,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/splash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/splash"
+        android:layout_centerInParent="true" />
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/container_navegacion"
         android:name="mc.tfg_tiempo.api_clima.InformacionClimaFragment"

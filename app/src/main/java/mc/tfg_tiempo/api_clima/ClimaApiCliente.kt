@@ -46,7 +46,7 @@ class ClimaApiCliente {
             val icon = arrayDescription.getString("icon")
             val estado = arrayDescription.getString("description")
 
-            return DataWeather(temperatura, humedad, icon, sensacionTerminca, tempMaxima, tempMinima, presion, estado)
+            return DataWeather(temperatura, humedad, icon, sensacionTerminca, tempMaxima, tempMinima, presion, estado.capitalize())
         }
     }
 }

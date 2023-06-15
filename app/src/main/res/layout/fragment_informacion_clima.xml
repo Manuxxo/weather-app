@@ -8,6 +8,17 @@ android:background="@drawable/background"
 tools:context=".api_clima.InformacionClimaFragment">
 
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/txtCiudad"
         android:layout_width="wrap_content"
@@ -27,7 +38,7 @@ tools:context=".api_clima.InformacionClimaFragment">
         android:layout_height="110dp"
         android:text="TextView"
         android:textColor="#FFFFFF"
-        android:textSize="80dp"
+        android:textSize="80sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,17 +72,6 @@ tools:context=".api_clima.InformacionClimaFragment">
         app:layout_constraintTop_toBottomOf="@+id/imageViewIcon"
         app:layout_constraintVertical_bias="0.110000014" />
 
-    <Button
-        android:id="@+id/btnGetData"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEstado"
-        app:layout_constraintVertical_bias="0.063" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recViewCard"
@@ -81,6 +81,6 @@ tools:context=".api_clima.InformacionClimaFragment">
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnGetData" />
+        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
