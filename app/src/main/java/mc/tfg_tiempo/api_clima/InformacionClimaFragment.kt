@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.view.KeyEvent
@@ -62,10 +63,11 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
             val imm = requireContext(). getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(enlace.txtCiudad, InputMethodManager.SHOW_IMPLICIT)
         }
-        enlace.txtCiudad.setOnEditorActionListener { _, actionId, event ->
+        enlace.txtCiudad.setOnEditorActionListener { _, _, event ->
             if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
                 // Evita el salto de línea al presionar "Enter"
                 poneDatos(enlace.txtCiudad.text.toString())
+                enlace.txtCiudad.isEnabled = false
                 true // Indica que el evento ha sido manejado
             } else {
                 false // Indica que el evento no ha sido manejado
@@ -88,8 +90,6 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                 enlace.recViewCard.setHasFixedSize(true)
                 enlace.recViewCard.adapter = adapter
             }
-
-
         }
     }
 
@@ -97,26 +97,13 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
         Toast.makeText(this.context,"Error al cargar las horas",Toast.LENGTH_LONG).show()
     }
 
+    @SuppressLint("MissingPermission")
     private fun getLocaclizacionActual() {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            //No dio los permisos
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            return
-        }
-
         localizacion.lastLocation
             .addOnSuccessListener { location ->
                 // Se obtuvo la ubicación
                 if (location != null) {
                     poneDatos(getNombreCiudadPorCoordenada(location.latitude,location.longitude))
-
                 } else{
                     Toast.makeText(requireContext(),"No se puede obtener la ubicación en este momento", Toast.LENGTH_LONG).show()
                     poneDatos(CIUDAD_POR_DEFECTO)
@@ -124,6 +111,7 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
             }
             .addOnFailureListener { exception ->
                 // No se pudo obtener la ubicación
+                poneDatos(CIUDAD_POR_DEFECTO)
                 Toast.makeText(requireContext(),"No se pudo obtener la ubicación", Toast.LENGTH_LONG).show()
             }
     }
@@ -141,7 +129,19 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
             }
         }
 
-
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSION_REQUEST_CODE){
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                getLocaclizacionActual()
+            }else{
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+        }
+    }
 
     private fun poneDatos(ciudad:String){
         climaApiCliente = ClimaApiCliente()
