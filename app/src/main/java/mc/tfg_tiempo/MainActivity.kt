@@ -2,13 +2,10 @@ package mc.tfg_tiempo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.material.navigation.NavigationBarMenu
 import mc.tfg_tiempo.api_clima.InformacionClimaFragment
 import mc.tfg_tiempo.databinding.ActivityMainBinding
-import mc.tfg_tiempo.databinding.FragmentInformacionClimaBinding
 import mc.tfg_tiempo.map.MapsFragment
 
 
@@ -23,7 +20,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(enlace.root)
 
         enlace.bottomNavigation.setOnItemSelectedListener{
-            val currentFragment = supportFragmentManager.findFragmentById(R.id.container_navegacion)
             if (it.itemId == R.id.mapBottom ){
                 cambioFragment(MapsFragment())
                 enlace.bottomNavigation.menu.findItem(R.id.mapBottom).isEnabled = false
@@ -45,4 +41,5 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.replace(enlace.containerNavegacion.id,fragment)
         fragmentTransaction.commit()
     }
+
 }

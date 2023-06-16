@@ -32,7 +32,7 @@ import java.util.Locale
 class InformacionClimaFragment : Fragment(), respuestaWeather {
 
     private val PERMISSION_REQUEST_CODE = 1001
-
+    private val CIUDAD_POR_DEFECTO = "Sevilla"
     private lateinit var enlace: FragmentInformacionClimaBinding
     private lateinit var climaApiCliente: ClimaApiCliente
     private lateinit var climaPorHora: ClimaPorHora
@@ -117,6 +117,9 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                 if (location != null) {
                     poneDatos(getNombreCiudadPorCoordenada(location.latitude,location.longitude))
 
+                } else{
+                    Toast.makeText(requireContext(),"No se puede obtener la ubicación en este momento", Toast.LENGTH_LONG).show()
+                    poneDatos(CIUDAD_POR_DEFECTO)
                 }
             }
             .addOnFailureListener { exception ->
@@ -132,7 +135,7 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
                 getLocaclizacionActual()
             } else {
                 // Permiso denegado
-                poneDatos("Madrid")
+                poneDatos(CIUDAD_POR_DEFECTO)
                 ActivityCompat.requestPermissions(this.requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_CODE)
                 Toast.makeText(requireContext(),"Denegado", Toast.LENGTH_LONG).show()
             }
