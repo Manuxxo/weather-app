@@ -1,5 +1,6 @@
 package mc.tfg_tiempo.api_clima
 
+import com.google.android.gms.maps.model.LatLng
 import mc.tfg_tiempo.interfaces.RespuestaWeather
 import okhttp3.*
 import org.json.JSONObject
@@ -10,13 +11,15 @@ class ClimaApiCliente {
     private val apiKey: String = "95b1f5bbf3915b3c1c96eaf1e6c348e3"
     private val cliente = OkHttpClient()
 
-    fun getClimaActual(city: String, callback: RespuestaWeather) {
-        val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&units=metric&appid=$apiKey&lang=es"
+    fun getClimaActualCoordenada(latLong: LatLng, callback: RespuestaWeather) {
+        val url = "https://api.openweathermap.org/data/2.5/weather?lat=${latLong.latitude}&lon=${latLong.longitude}&units=metric&appid=$apiKey&lang=es"
 
+        // Crea una solicitud HTTP utilizando la URL proporcionada
         val request = Request.Builder()
             .url(url)
             .build()
 
+        // Realiza la llamada asíncrona a la API y maneja las respuestas y errores utilizando el callback po rla intefaz
         cliente.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
                 callback.onResponse(response)
@@ -31,6 +34,7 @@ class ClimaApiCliente {
 
 
     companion object {
+        // Analiza la respuesta JSON de la API y devuelve un objeto DataWeather
         fun climaParser(json: String): DataWeather {
             val jsonObject = JSONObject(json)
 
