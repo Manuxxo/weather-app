@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.google.android.libraries.places.api.Places
 import mc.tfg_tiempo.api_clima.InformacionClimaFragment
 import mc.tfg_tiempo.databinding.ActivityMainBinding
+import mc.tfg_tiempo.interfaces.PasaDataFragment
 import mc.tfg_tiempo.map.MapsFragment
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PasaDataFragment {
 
     val enlace: ActivityMainBinding by lazy{
         ActivityMainBinding.inflate(layoutInflater)
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Places.initialize(applicationContext, "AIzaSyDb_3Wqes-OOfyLRIpZeiZ303qOt_UxrV4")
         setContentView(enlace.root)
 
         enlace.bottomNavigation.setOnItemSelectedListener{
@@ -36,10 +39,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun cambioFragment(fragment: Fragment){
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(enlace.containerNavegacion.id,fragment)
-        fragmentTransaction.commit()
+        supportFragmentManager.beginTransaction()
+        .replace(enlace.containerNavegacion.id,fragment)
+        .commit()
     }
 
+    override fun pasaDato(latitud: Double, longitud: Double) {
+        val infoFragment = InformacionClimaFragment()
+        val bundle = Bundle()
+        bundle.putDouble("latitud",latitud)
+        bundle.putDouble("longitud",longitud)
+        infoFragment.arguments = bundle
+        cambioFragment(infoFragment)
+        enlace.bottomNavigation.menu.findItem(R.id.mapBottom).isEnabled = true
+        enlace.bottomNavigation.menu.findItem(R.id.inicioBottom).isEnabled = false
+    }
 }

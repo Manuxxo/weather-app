@@ -1,5 +1,6 @@
 package mc.tfg_tiempo.api_clima
 
+import mc.tfg_tiempo.interfaces.RespuestaWeather
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -9,7 +10,7 @@ class ClimaApiCliente {
     private val apiKey: String = "95b1f5bbf3915b3c1c96eaf1e6c348e3"
     private val cliente = OkHttpClient()
 
-    fun getClimaActual(city: String, callback: respuestaWeather) {
+    fun getClimaActual(city: String, callback: RespuestaWeather) {
         val url = "https://api.openweathermap.org/data/2.5/weather?q=$city&units=metric&appid=$apiKey&lang=es"
 
         val request = Request.Builder()
@@ -50,9 +51,4 @@ class ClimaApiCliente {
             return DataWeather(temperatura, humedad, icon, sensacionTerminca, tempMaxima, tempMinima, viento, estado.capitalize())
         }
     }
-}
-
-interface respuestaWeather {
-    fun onResponse(response: Response)
-    fun onError()
 }

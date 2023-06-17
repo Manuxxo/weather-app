@@ -25,11 +25,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/txtCiudad"
             android:layout_width="201dp"
             android:layout_height="61dp"
-            android:enabled="false"
             android:gravity="center"
             android:textAlignment="center"
             android:textColor="#FFFFFF"

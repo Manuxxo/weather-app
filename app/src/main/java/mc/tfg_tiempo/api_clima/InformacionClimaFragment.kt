@@ -18,19 +18,28 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.view.KeyEvent
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.AutoCompleteTextView
+import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.fitness.data.Field
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompletePrediction
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import mc.tfg_tiempo.autocompletar.AutocompletarAdapter
 import mc.tfg_tiempo.card.AdaptadorCard
 import mc.tfg_tiempo.card.ClimaPorHora
 import mc.tfg_tiempo.card.DataCard
 import mc.tfg_tiempo.databinding.FragmentInformacionClimaBinding
+import mc.tfg_tiempo.interfaces.RespuestaWeather
 import okhttp3.Response
 import java.io.IOException
 import java.util.Locale
 
 
-class InformacionClimaFragment : Fragment(), respuestaWeather {
+class InformacionClimaFragment : Fragment(), RespuestaWeather {
 
     private val PERMISSION_REQUEST_CODE = 1001
     private val CIUDAD_POR_DEFECTO = "Sevilla"
@@ -38,39 +47,63 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
     private lateinit var climaApiCliente: ClimaApiCliente
     private lateinit var climaPorHora: ClimaPorHora
     private lateinit var localizacion: FusedLocationProviderClient
+    private lateinit var placesClient: PlacesClient
+    private lateinit var autocompleteAdapter: AutocompletarAdapter
+    private lateinit var autocompleteResultList: ArrayList<AutocompletePrediction>
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         // Inflate the layout for this fragment
         enlace= FragmentInformacionClimaBinding.inflate(inflater, container, false)
         localizacion = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        val autocompletado = enlace.txtCiudad
+        placesClient = Places.createClient(requireContext())
+        autocompleteAdapter = AutocompletarAdapter(requireContext())
+        autocompleteAdapter.setPlacesClient(placesClient)
+        autocompletado.setAdapter(autocompleteAdapter)
+
         return enlace.root
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        this.getLocaclizacionActual()
 
-        enlace.swipeRefreshLayout.setOnRefreshListener {
-            poneDatos(enlace.txtCiudad.text.toString())
-            enlace.swipeRefreshLayout.isRefreshing = false
-        }
-
-        enlace.imgCambiaCiudad.setOnClickListener{
-            enlace.txtCiudad.isEnabled = true
-            enlace.txtCiudad.requestFocus() // Obtener el foco en el EditText
-            val imm = requireContext(). getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(enlace.txtCiudad, InputMethodManager.SHOW_IMPLICIT)
-        }
-        enlace.txtCiudad.setOnEditorActionListener { _, _, event ->
-            if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
-                // Evita el salto de línea al presionar "Enter"
-                poneDatos(enlace.txtCiudad.text.toString())
-                enlace.txtCiudad.isEnabled = false
-                true // Indica que el evento ha sido manejado
+        val latitud = arguments?.getDouble("latitud")
+        val longitud = arguments?.getDouble("longitud")
+        println(latitud)
+        println(longitud)
+        if(latitud != null || longitud != null){
+            val ciudadMaps = getNombreCiudadPorCoordenada(latitud!!, longitud!!)
+            if (!ciudadMaps.isNullOrEmpty()) { // Verificar si la ciudadMaps no es nula ni vacía
+                poneDatos(ciudadMaps)
             } else {
-                false // Indica que el evento no ha sido manejado
+                poneDatos(CIUDAD_POR_DEFECTO)
+                Toast.makeText(requireContext(), "No es una ubicación válida", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            this.getLocaclizacionActual()
+            enlace.swipeRefreshLayout.setOnRefreshListener {
+                poneDatos(enlace.txtCiudad.text.toString())
+                enlace.swipeRefreshLayout.isRefreshing = false
+            }
+
+            enlace.imgCambiaCiudad.setOnClickListener{
+                enlace.txtCiudad.isEnabled = true
+                enlace.txtCiudad.requestFocus() // Obtener el foco en el EditText
+                val imm = requireContext(). getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(enlace.txtCiudad, InputMethodManager.SHOW_IMPLICIT)
+            }
+            enlace.txtCiudad.setOnEditorActionListener { _, _, event ->
+                if (event.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    // Evita el salto de línea al presionar "Enter"
+                    poneDatos(enlace.txtCiudad.text.toString())
+                    enlace.txtCiudad.isEnabled = false
+                    true // Indica que el evento ha sido manejado
+                } else {
+                    false // Indica que el evento no ha sido manejado
+                }
             }
         }
     }
@@ -148,7 +181,7 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
         climaPorHora = ClimaPorHora()
         climaPorHora.getPronosticoPorHoras(ciudad,this)
 
-        climaApiCliente.getClimaActual(ciudad, object : respuestaWeather {
+        climaApiCliente.getClimaActual(ciudad, object : RespuestaWeather {
             override fun onResponse(response: Response) {
 
                 val body = response.body?.string()
@@ -195,7 +228,8 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
 
             override fun onError() {
                 view!!.post {
-                    Toast.makeText(requireContext(),"No se encuentra la ciudad", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(),"No se encuentra ninguna ciudad", Toast.LENGTH_LONG).show()
+                    poneDatos(CIUDAD_POR_DEFECTO)
                 }
             }
         })
@@ -205,8 +239,11 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
         try {
             val addresses: List<Address> = geocoder.getFromLocation(latitude, longitude, 1) as List<Address>
-            if (addresses.isNotEmpty()) {
+            if (addresses.isNotEmpty() && addresses[0].locality != null) {
                 val cityName: String = addresses[0].locality
+                for (i in addresses){
+                    println(i.locality)
+                }
                 return cityName
             }
         } catch (e: IOException) {
@@ -214,5 +251,4 @@ class InformacionClimaFragment : Fragment(), respuestaWeather {
         }
         return ""
     }
-
 }

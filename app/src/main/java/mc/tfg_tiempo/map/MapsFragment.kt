@@ -3,6 +3,7 @@ package mc.tfg_tiempo.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.fragment.app.Fragment
 import android.os.Bundle
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import mc.tfg_tiempo.R
 import mc.tfg_tiempo.databinding.FragmentMapsBinding
+import mc.tfg_tiempo.interfaces.PasaDataFragment
 import java.util.concurrent.TimeUnit
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
@@ -29,6 +31,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map:GoogleMap
     private lateinit var enlace: FragmentMapsBinding
     private var markerAnterior: Marker? = null
+    private var pasaDato: PasaDataFragment? = null
 
     companion object{
         private const val PERMISSION_REQUEST_CODE = 1001
@@ -39,9 +42,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         return enlace.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        pasaDato = context as? PasaDataFragment
     }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.setOnMapClickListener {
@@ -67,15 +72,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     // La animación de la cámara termina
                     val handler = HandlerCompat.createAsync(requireActivity().mainLooper)
                     handler.postDelayed({
-                        showConfirmationDialog()
+                        showConfirmationDialog(coordinadas)
                     }, TimeUnit.MILLISECONDS.toMillis(1000))                }
 
                 override fun onCancel() {
                     // La animación de la cámara ha sido cancelada
-                    val handler = HandlerCompat.createAsync(requireActivity().mainLooper)
-                    handler.postDelayed({
-                        showConfirmationDialog()
-                    }, TimeUnit.MILLISECONDS.toMillis(1000))
 
                 }
             }
@@ -124,26 +125,28 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    private fun showConfirmationDialog() {
+    private fun showConfirmationDialog(coordinadas: LatLng) {
         val builder = AlertDialog.Builder(requireContext())
 
         // Configurar el título y el mensaje del diálogo
-        builder.setTitle("Confirmación")
+        builder.setTitle("Clima")
             .setMessage("¿Quieres elegir esta ubicación?")
 
         // Configurar el botón positivo y su acción
         builder.setPositiveButton("Sí") { dialog, which ->
             // Acción a realizar si se selecciona "Sí"
-            // Puedes agregar tu lógica aquí
+            mandaLocalizacion(coordinadas)
         }
 
         // Configurar el botón negativo y su acción
-        builder.setNegativeButton("No") { dialog, which ->
-
-        }
+        builder.setNegativeButton("No") { _, _ -> }
 
         // Mostrar el diálogo
         builder.create().show()
+    }
+
+    private fun mandaLocalizacion(coordinadas: LatLng){
+        pasaDato?.pasaDato(coordinadas.latitude, coordinadas.longitude)
     }
 
 }

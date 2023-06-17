@@ -1,6 +1,6 @@
 package mc.tfg_tiempo.card
 
-import mc.tfg_tiempo.api_clima.respuestaWeather
+import mc.tfg_tiempo.interfaces.RespuestaWeather
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -11,7 +11,7 @@ class ClimaPorHora {
     private val apiKey: String = "95b1f5bbf3915b3c1c96eaf1e6c348e3"
     private val cliente = OkHttpClient()
 
-    fun getPronosticoPorHoras(city: String, callback: respuestaWeather) {
+    fun getPronosticoPorHoras(city: String, callback: RespuestaWeather) {
         val url = "https://api.openweathermap.org/data/2.5/forecast?q=$city&units=metric&appid=$apiKey&lang=es"
 
         val request = Request.Builder()
