@@ -2,7 +2,6 @@ package mc.tfg_tiempo.autocompletar
 
 import android.content.Context
 import android.location.Geocoder
-import android.os.AsyncTask
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -18,7 +17,6 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import java.io.IOException
 import java.util.Locale
 import java.util.concurrent.ExecutionException
 
@@ -28,11 +26,11 @@ class AutocompletarAdapter(context: Context) : ArrayAdapter<AutocompletePredicti
     private var geocoder: Geocoder? = null
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        // Obtiene la vista del elemento en la posición especificada
+        // Obtener la vista del elemento en la posición especificada
         val fila = super.getView(position, convertView, parent)
         val item = getItem(position)
         val textView = fila.findViewById<TextView>(android.R.id.text1)
-        // Establece el texto en el TextView utilizando el AutocompletePrediction correspondiente
+        // Establece el texto en el TextView utilizando el AutocompletePrediction
         textView.text = item?.getFullText(null)
         return fila
     }
@@ -40,8 +38,8 @@ class AutocompletarAdapter(context: Context) : ArrayAdapter<AutocompletePredicti
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val filterResults = FilterResults()
-                val resultList = ArrayList<AutocompletePrediction>()
+                val filtrarResultado = FilterResults()
+                val resultadoLista = ArrayList<AutocompletePrediction>()
 
                 // Realizar una solicitud de autocompletado a Google Places API
                 val request = FindAutocompletePredictionsRequest.builder()
@@ -50,19 +48,19 @@ class AutocompletarAdapter(context: Context) : ArrayAdapter<AutocompletePredicti
 
                 placesClient.findAutocompletePredictions(request).addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
                     // Agregar cada predicción de autocompletado al resultado
-                    for (prediction in response.autocompletePredictions) {
-                        resultList.add(prediction)
+                    for (i in response.autocompletePredictions) {
+                        resultadoLista.add(i)
                     }
-                    filterResults.values = resultList
-                    filterResults.count = resultList.size
+                    filtrarResultado.values = resultadoLista
+                    filtrarResultado.count = resultadoLista.size
                     // Publicar los resultados para mostrar en la interfaz de usuario
-                    publishResults(constraint, filterResults)
+                    publishResults(constraint, filtrarResultado)
                 }?.addOnFailureListener { exception: Exception ->
                     // Manejar la excepción en caso de error
                     println(exception.toString())
                 }
 
-                return filterResults
+                return filtrarResultado
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
@@ -81,7 +79,7 @@ class AutocompletarAdapter(context: Context) : ArrayAdapter<AutocompletePredicti
             }
 
             override fun convertResultToString(resultValue: Any?): CharSequence {
-                // Convertir el valor del resultado en una cadena legible para su visualización
+                // Convertir el valor del resultado en una cadena legible
                 return (resultValue as AutocompletePrediction).getFullText(null)
             }
         }
