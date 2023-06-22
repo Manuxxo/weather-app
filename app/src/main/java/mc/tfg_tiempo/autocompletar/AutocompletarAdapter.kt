@@ -50,6 +50,7 @@ class AutocompletarAdapter(context: Context) : ArrayAdapter<AutocompletePredicti
                     // Agregar cada predicción de autocompletado al resultado
                     for (i in response.autocompletePredictions) {
                         resultadoLista.add(i)
+                        println(i)
                     }
                     filtrarResultado.values = resultadoLista
                     filtrarResultado.count = resultadoLista.size

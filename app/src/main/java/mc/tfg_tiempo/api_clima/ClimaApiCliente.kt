@@ -8,7 +8,7 @@ import java.io.IOException
 
 class ClimaApiCliente {
 
-    private val apiKey: String = "API_KEY_WEATHERMAP"
+    private val apiKey: String = "API_KEY_WEATHER_AQUI"
     private val cliente = OkHttpClient()
 
     fun getClimaActualCoordenada(latLong: LatLng, callback: RespuestaWeather) {

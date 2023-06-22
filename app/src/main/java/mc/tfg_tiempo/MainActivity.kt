@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity(), PasaDataFragment {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Places.initialize(applicationContext, "AIzaSyDb_3Wqes-OOfyLRIpZeiZ303qOt_UxrV4")
+        Places.initialize(applicationContext, "API_KEY_MAPS_AQUI")
         setContentView(enlace.root)
 
         enlace.bottomNavigation.setOnItemSelectedListener{

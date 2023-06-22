@@ -107,8 +107,10 @@ class InformacionClimaFragment : Fragment(), RespuestaWeather {
                         var latitudeLong = LatLng(selectedPlaceLatLng.latitude, selectedPlaceLatLng.longitude)
                         poneDatos(latitudeLong)
                         latLonActual = latitudeLong
-                        enlace.txtCiudad.text = SpannableStringBuilder.valueOf(selectedCiudad?.getFullText(null))
-                        enlace.txtCiudad.isEnabled = false
+                        view.post{
+                            enlace.txtCiudad.text = SpannableStringBuilder.valueOf(selectedCiudad?.getFullText(null))
+                            enlace.txtCiudad.isEnabled = false
+                        }
                     }
                 }
             }
